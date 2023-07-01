@@ -1,0 +1,33 @@
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd 
+
+url = "https://www.worldometers.info/world-population/population-by-country/"
+
+response = requests.get(url)
+soup = BeautifulSoup(response.text, "html.parser")
+
+rows = soup.find("table", {"id": "example2"}).find("tbody").find_all("tr")
+
+countries_list = []
+
+for row in rows:
+    columns = row.find_all("td")
+    dict = {}
+    dict["country"] = columns[1].text
+    dict["population 2020"] = columns[2].text.replace(",", "")
+    dict["yearly change"] = columns[3].text
+    dict["net change"] = columns[4].text
+    dict["density (P/Km²)"] = columns[5].text
+    dict["land area (Km²)"] = columns[6].text
+    dict["migrants (net)"] = columns[7].text
+    dict["fert. rate"] = columns[8].text
+    dict["med. age"] = columns[9].text
+    dict["urban pop %"] = columns[10].text
+    dict["world share"] = columns[11].text
+    
+    countries_list.append(dict)
+
+df = pd.DataFrame(countries_list)
+df.to_excel(r"C:\Users\dell\OneDrive\Desktop\Data\countires_data.xlsx", index=False)
+df.to_csv(r"C:\Users\dell\OneDrive\Desktop\Data\countries_data.csv", index=False)
